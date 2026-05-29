@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoice Tool</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: Arial; background: #f0f2f5; min-height: 100vh; padding: 30px 20px; }
+        .container { max-width: 600px; margin: auto; background: white; border-radius: 12px; padding: 30px; box-shadow: 0 2px 15px rgba(0,0,0,0.1); }
+        h1 { color: #2ecc71; margin-bottom: 5px; }
+        h3 { color: #555; margin: 20px 0 10px; }
+        input { width: 100%; padding: 10px; margin: 6px 0; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+        .item-row { display: flex; gap: 8px; margin: 6px 0; }
+        .item-row input { margin: 0; }
+        #add-btn { width: 100%; padding: 10px; background: #3498db; color: white; border: none; border-radius: 6px; cursor: pointer; margin: 10px 0; font-size: 14px; }
+        #submit-btn { width: 100%; padding: 14px; background: #2ecc71; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; }
+        #submit-btn:hover { background: #27ae60; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .list-btn { padding: 8px 15px; background: #f0f2f5; border-radius: 6px; text-decoration: none; color: #333; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top-bar">
+            <h1>🧾 Invoice Tool</h1>
+            <a href="/invoices" class="list-btn">📋 Saari Invoices</a>
+        </div>
+        <form action="/generate" method="POST">
+            <h3>🏪 Business</h3>
+            <input type="text" name="business_name" placeholder="Aapka business naam" required>
+
+            <h3>👤 Customer</h3>
+            <input type="text" name="customer_name" placeholder="Customer ka naam" required>
+            <input type="text" name="customer_phone" placeholder="WhatsApp number (10 digits)" required>
+
+            <h3>📦 Items</h3>
+            <div id="items-container">
+                <div class="item-row">
+                    <input type="text" name="item_name[]" placeholder="Item naam" required>
+                    <input type="number" name="item_qty[]" placeholder="Qty" min="1" value="1" style="width:80px" required>
+                    <input type="number" name="item_price[]" placeholder="Price" required>
+                </div>
+            </div>
+            <button type="button" id="add-btn" onclick="addItem()">+ Item Add Karo</button>
+            <button type="submit" id="submit-btn">✅ Invoice Banao</button>
+        </form>
+    </div>
+    <script>
+        function addItem() {
+            const container = document.getElementById('items-container');
+            const row = document.createElement('div');
+            row.className = 'item-row';
+            row.innerHTML = `
+                <input type="text" name="item_name[]" placeholder="Item naam" required>
+                <input type="number" name="item_qty[]" placeholder="Qty" min="1" value="1" style="width:80px" required>
+                <input type="number" name="item_price[]" placeholder="Price" required>
+            `;
+            container.appendChild(row);
+        }
+    </script>
+</body>
+</html>

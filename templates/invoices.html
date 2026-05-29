@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Saari Invoices</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial; background: #f0f2f5; padding: 30px 20px; }
+        .container { max-width: 850px; margin: auto; }
+        h1 { color: #333; margin-bottom: 20px; }
+        .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .new-btn { padding: 10px 20px; background: #2ecc71; color: white; border-radius: 8px; text-decoration: none; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+        th { background: #2ecc71; color: white; padding: 14px; text-align: left; }
+        td { padding: 12px 14px; border-bottom: 1px solid #f0f2f5; }
+        tr:hover td { background: #f9f9f9; }
+        .total-cell { font-weight: bold; color: #2ecc71; }
+        .empty { text-align: center; padding: 40px; color: #999; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top">
+            <h1>📋 Saari Invoices</h1>
+            <a href="/" class="new-btn">+ Nayi Invoice</a>
+        </div>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Customer</th>
+                <th>Phone</th>
+                <th>Total</th>
+                <th>Date</th>
+                <th>Download</th>
+            </tr>
+            {% if invoices %}
+                {% for inv in invoices %}
+                <tr>
+                    <td>INV-{{ inv[1] }}</td>
+                    <td>{{ inv[2] }}</td>
+                    <td>{{ inv[3] }}</td>
+                    <td class="total-cell">Rs. {{ "%.2f"|format(inv[4]) }}</td>
+                    <td>{{ inv[5] }}</td>
+                    <td><a href="/download/{{ inv[1] }}">⬇️ PDF</a></td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr><td colspan="6" class="empty">Abhi koi invoice nahi hai</td></tr>
+            {% endif %}
+        </table>
+    </div>
+</body>
+</html>
