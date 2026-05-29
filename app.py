@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, send_file
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
-from reportlab.lib import colors
 import os, datetime, sqlite3
 
 app = Flask(__name__)
@@ -36,34 +35,23 @@ def generate():
     item_names = request.form.getlist("item_name[]")
     item_qtys = request.form.getlist("item_qty[]")
     item_prices = request.form.getlist("item_price[]")
-
     invoice_no = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
     filename = f"invoices/invoice_{invoice_no}.pdf"
-
     c = canvas.Canvas(filename, pagesize=A4)
     width, height = A4
-
-    # Header background
     c.setFillColorRGB(0.18, 0.8, 0.44)
     c.rect(0, height-120, width, 120, fill=1, stroke=0)
-
-    # Business name
     c.setFillColorRGB(1, 1, 1)
     c.setFont("Helvetica-Bold", 28)
     c.drawString(40, height-60, business_name)
-
     c.setFont("Helvetica", 13)
     c.drawString(40, height-85, "INVOICE")
-
-    # Invoice details
     c.setFillColorRGB(0, 0, 0)
     c.setFont("Helvetica", 11)
     c.drawString(40, height-150, f"Invoice No: INV-{invoice_no}")
     c.drawString(40, height-170, f"Date: {datetime.date.today()}")
     c.drawString(40, height-200, f"Customer: {customer_name}")
     c.drawString(40, height-220, f"Phone: {customer_phone}")
-
-    # Table header
     c.setFillColorRGB(0.18, 0.8, 0.44)
     c.rect(40, height-270, width-80, 25, fill=1, stroke=0)
     c.setFillColorRGB(1, 1, 1)
@@ -72,13 +60,10 @@ def generate():
     c.drawString(280, height-260, "Qty")
     c.drawString(350, height-260, "Price")
     c.drawString(450, height-260, "Total")
-
-    # Items
     y = height - 295
     grand_total = 0
     c.setFillColorRGB(0, 0, 0)
     c.setFont("Helvetica", 11)
-
     for i, (name, qty, price) in enumerate(zip(item_names, item_qtys, item_prices)):
         qty = int(qty)
         price = float(price)
@@ -93,32 +78,23 @@ def generate():
         c.drawString(350, y, f"Rs. {price:.2f}")
         c.drawString(450, y, f"Rs. {total:.2f}")
         y -= 25
-
-    # Total box
     c.setFillColorRGB(0.18, 0.8, 0.44)
     c.rect(350, y-35, width-390, 30, fill=1, stroke=0)
     c.setFillColorRGB(1, 1, 1)
     c.setFont("Helvetica-Bold", 13)
     c.drawString(360, y-20, f"Grand Total: Rs. {grand_total:.2f}")
-
-    # Footer
     c.setFillColorRGB(0.5, 0.5, 0.5)
     c.setFont("Helvetica", 9)
     c.drawString(40, 40, "Thank you for your business!")
-
     c.save()
-
-    # DB mein save
     conn = sqlite3.connect("invoices.db")
     cur = conn.cursor()
     cur.execute("INSERT INTO invoices (invoice_no, customer_name, customer_phone, total, date, filename) VALUES (?,?,?,?,?,?)",
                 (invoice_no, customer_name, customer_phone, grand_total, str(datetime.date.today()), filename))
     conn.commit()
     conn.close()
-
     whatsapp_msg = f"Namaskar {customer_name} ji! Aapki invoice ready hai. Total: Rs. {grand_total:.2f}. Dhanyavaad!"
     whatsapp_url = f"https://wa.me/91{customer_phone}?text={whatsapp_msg.replace(' ', '%20')}"
-
     return render_template("success.html", filename=filename, invoice_no=invoice_no,
                            total=grand_total, whatsapp_url=whatsapp_url, customer_name=customer_name)
 
@@ -137,4 +113,5 @@ def all_invoices():
     return render_template("invoices.html", invoices=invoices)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
